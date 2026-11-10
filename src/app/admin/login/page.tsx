@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
+import logoImg from "@/assets/logo.png";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,10 +22,17 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/admin
     <main className="flex flex-1 items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <p className="text-4xl" aria-hidden>
-            🍮
-          </p>
-          <h1 className="mt-2 font-heading text-2xl font-bold text-primary">P&apos;crème Admin</h1>
+          <div className="mx-auto flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#E9DDCE] bg-[#F5E1BE] shadow-xs">
+            <Image
+              src={logoImg}
+              alt="Logo Resmi P'crème"
+              width={64}
+              height={64}
+              className="h-full w-full object-contain"
+              priority
+            />
+          </div>
+          <h1 className="mt-3 font-heading text-2xl font-bold text-primary">P&apos;crème Admin</h1>
           <p className="mt-1 text-sm text-muted-foreground">Masuk untuk mengelola pesanan.</p>
         </div>
         <div className="rounded-3xl border bg-card p-5 shadow-sm">

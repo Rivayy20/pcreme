@@ -50,45 +50,51 @@
 }
 
 /*
-  Tema P'crème: krem + coklat puding + pink strawberry.
-  Ganti nilai di sini kalau nanti ada brand guideline.
+  Tema P'crème:
+  - Primary: Dark Chocolate Brown (#704329)
+  - Secondary: Cream (#FFF9EF)
+  - Background: Warm Off-White (#FFFCF6)
+  - Accent: Soft Pink (#FBE4E8)
+  - Text Primary: Dark Brown (#35251E)
+  - Text Secondary: Muted Brown (#947967)
+  - Border: Soft Beige (#E9DDCE)
 */
 :root {
-  --background: oklch(0.985 0.012 85);
-  --foreground: oklch(0.27 0.04 50);
-  --card: oklch(1 0.005 85);
-  --card-foreground: oklch(0.27 0.04 50);
-  --popover: oklch(1 0.005 85);
-  --popover-foreground: oklch(0.27 0.04 50);
-  --primary: oklch(0.4 0.07 50);
-  --primary-foreground: oklch(0.985 0.012 85);
-  --secondary: oklch(0.95 0.025 80);
-  --secondary-foreground: oklch(0.3 0.05 50);
-  --muted: oklch(0.955 0.02 80);
-  --muted-foreground: oklch(0.5 0.04 55);
-  --accent: oklch(0.94 0.04 10);
-  --accent-foreground: oklch(0.35 0.08 15);
-  --destructive: oklch(0.577 0.22 27);
-  --border: oklch(0.9 0.02 75);
-  --input: oklch(0.88 0.025 75);
-  --ring: oklch(0.65 0.14 10);
-  --chart-1: oklch(0.4 0.07 50);
-  --chart-2: oklch(0.72 0.14 10);
-  --chart-3: oklch(0.6 0.1 60);
-  --chart-4: oklch(0.8 0.08 80);
-  --chart-5: oklch(0.5 0.1 20);
+  --background: #fffcf6;
+  --foreground: #35251e;
+  --card: #ffffff;
+  --card-foreground: #35251e;
+  --popover: #ffffff;
+  --popover-foreground: #35251e;
+  --primary: #704329;
+  --primary-foreground: #fffcf6;
+  --secondary: #fff9ef;
+  --secondary-foreground: #35251e;
+  --muted: #f7efe2;
+  --muted-foreground: #947967;
+  --accent: #fbe4e8;
+  --accent-foreground: #5c2833;
+  --destructive: #c93b2b;
+  --border: #e9ddce;
+  --input: #e2d3c1;
+  --ring: #704329;
+  --chart-1: #704329;
+  --chart-2: #e07a93;
+  --chart-3: #b07d56;
+  --chart-4: #d8b898;
+  --chart-5: #8c5233;
   --radius: 0.875rem;
-  --sidebar: oklch(0.97 0.02 80);
-  --sidebar-foreground: oklch(0.27 0.04 50);
-  --sidebar-primary: oklch(0.4 0.07 50);
-  --sidebar-primary-foreground: oklch(0.985 0.012 85);
-  --sidebar-accent: oklch(0.94 0.04 10);
-  --sidebar-accent-foreground: oklch(0.35 0.08 15);
-  --sidebar-border: oklch(0.9 0.02 75);
-  --sidebar-ring: oklch(0.65 0.14 10);
-  --brand-pink: oklch(0.72 0.14 10);
-  --brand-pink-soft: oklch(0.95 0.035 10);
-  --brand-cream: oklch(0.97 0.025 85);
+  --sidebar: #fff9ef;
+  --sidebar-foreground: #35251e;
+  --sidebar-primary: #704329;
+  --sidebar-primary-foreground: #fffcf6;
+  --sidebar-accent: #fbe4e8;
+  --sidebar-accent-foreground: #5c2833;
+  --sidebar-border: #e9ddce;
+  --sidebar-ring: #704329;
+  --brand-pink: #d86c86;
+  --brand-pink-soft: #fbe4e8;
+  --brand-cream: #fff9ef;
 }
 
 @layer base {

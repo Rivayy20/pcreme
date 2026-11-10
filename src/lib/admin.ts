@@ -1,3 +1,4 @@
+import { parseAlamatAntar, parseCatatanPesanan } from "@/lib/order-meta";
 import type { OrderDenganRelasi, PoPeriod } from "@/lib/types";
 
 export type PeriodeRingkas = Pick<PoPeriod, "id" | "minggu" | "nama" | "is_active">;
@@ -17,13 +18,18 @@ export function lokasiPesanan(o: Pick<OrderDenganRelasi, "fulfillment" | "pickup
   if (o.fulfillment === "ambil") {
     return o.pickup_points ? `${o.pickup_points.nama} (${o.pickup_points.jam})` : "Titik ambil";
   }
-  return `Antar: ${o.alamat_antar ?? "-"}${o.jam_antar ? ` (jam ${o.jam_antar})` : ""}`;
+  const { alamat, patokan } = parseAlamatAntar(o.alamat_antar);
+  return `Antar: ${alamat}${patokan ? ` [Patokan: ${patokan}]` : ""}${o.jam_antar ? ` (jam ${o.jam_antar})` : ""}`;
 }
 
 /** "2x Coklat (Oreo, Meses); 1x Strawberry" */
-export function rincianItem(items: OrderDenganRelasi["order_items"]): string {
-  return items
-    .map((i) => `${i.qty}x ${i.rasa}${i.topping.length ? ` (${i.topping.join(", ")})` : ""}`)
+export function rincianItem(
+  items: OrderDenganRelasi["order_items"],
+  catatan?: string | null,
+): string {
+  const meta = parseCatatanPesanan(catatan, items);
+  return meta.cups
+    .map((c) => `Cup #${c.nomor}: ${c.qty}x ${c.labelRasa}${c.topping.length ? ` (${c.topping.join(", ")})` : ""}`)
     .join("; ");
 }
 

@@ -58,6 +58,27 @@ export interface ItemPesananInput {
   qty: number;
 }
 
+export const DAFTAR_ALASAN_TOLAK = [
+  "Nominal pembayaran tidak sesuai",
+  "Bukti pembayaran tidak jelas atau buram",
+  "Bukti pembayaran tidak valid",
+  "Rekening tujuan tidak sesuai",
+  "Transaksi belum berhasil atau masih pending",
+  "Alasan lainnya",
+] as const;
+
+export type RejectionReason = (typeof DAFTAR_ALASAN_TOLAK)[number];
+
+export interface PaymentHistoryItem {
+  id: string;
+  tipe: "upload" | "rejection" | "approval";
+  waktu: string;
+  buktiPath?: string | null;
+  alasan?: string | null;
+  catatan?: string | null;
+  adminEmail?: string | null;
+}
+
 export interface BuatPesananParams {
   p_period_id: string;
   p_nama: string;
@@ -91,6 +112,12 @@ export interface StatusPesanan {
   info_pembayaran: string | null;
   dibuat_pada: string;
   items: ItemPesananInput[];
+  order_id?: string;
+  wa_admin?: string | null;
+  catatan_admin?: string | null;
+  alasan_penolakan?: string | null;
+  catatan_penolakan?: string | null;
+  riwayat_pembayaran?: PaymentHistoryItem[];
 }
 
 export interface KirimBuktiResult {
@@ -98,11 +125,23 @@ export interface KirimBuktiResult {
   status: OrderStatus;
 }
 
-/** Data yang disimpan di sessionStorage setelah memesan / saat cek status. */
+/** Data yang disimpan di sessionStorage/localStorage setelah memesan / saat cek status. */
 export interface SesiPesanan {
   kode: string;
   wa: string;
   order_id?: string;
+  metode_bayar?: "qris" | "mandiri";
+  catatan_pelanggan?: string;
+  patokan?: string;
+  kontak_antar?: string;
+  cups?: {
+    nomor: number;
+    labelRasa: string;
+    isMix: boolean;
+    rasaMix: string[];
+    topping: string[];
+    qty: number;
+  }[];
 }
 
 // ---------- Tabel (admin) ----------
@@ -168,6 +207,9 @@ export interface Order {
   bukti_bayar_path: string | null;
   bukti_uploaded_at: string | null;
   catatan_admin: string | null;
+  alasan_penolakan?: string | null;
+  catatan_penolakan?: string | null;
+  riwayat_pembayaran?: PaymentHistoryItem[] | null;
   created_at: string;
   updated_at: string;
 }

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Lapis kedua guard admin (lapis pertama: src/proxy.ts). Dijalankan saat halaman dimuat penuh;
  * data tetap dilindungi RLS di database untuk navigasi berikutnya.

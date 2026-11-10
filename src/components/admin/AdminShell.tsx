@@ -1,9 +1,11 @@
 "use client";
 
 import { CalendarRange, ClipboardList, ExternalLink, LayoutDashboard, LogOut, Printer, UtensilsCrossed } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import logoImg from "@/assets/logo.png";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -35,8 +37,19 @@ export function AdminShell({ email, children }: { email: string; children: React
     <div className="flex min-h-screen flex-1 flex-col md:flex-row">
       {/* Sidebar (desktop) */}
       <aside className="no-print hidden w-56 shrink-0 flex-col border-r bg-sidebar p-4 md:flex">
-        <Link href="/admin" className="mb-6 font-heading text-xl font-bold text-primary">
-          P&apos;crème <span className="text-sm font-medium text-muted-foreground">admin</span>
+        <Link href="/admin" className="mb-6 flex items-center gap-2.5">
+          <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#E9DDCE] bg-[#F5E1BE]">
+            <Image
+              src={logoImg}
+              alt="Logo Resmi P'crème"
+              width={36}
+              height={36}
+              className="h-full w-full object-contain"
+            />
+          </span>
+          <span className="font-heading text-xl font-bold text-primary">
+            P&apos;crème <span className="text-sm font-medium text-muted-foreground">admin</span>
+          </span>
         </Link>
         <nav aria-label="Menu admin" className="flex flex-1 flex-col gap-1">
           {NAV.map(({ href, label, icon: Icon }) => (
@@ -77,8 +90,17 @@ export function AdminShell({ email, children }: { email: string; children: React
 
       {/* Topbar (mobile) */}
       <header className="no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/95 px-4 backdrop-blur md:hidden">
-        <Link href="/admin" className="font-heading text-lg font-bold text-primary">
-          P&apos;crème admin
+        <Link href="/admin" className="flex items-center gap-2 font-heading text-lg font-bold text-primary">
+          <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#E9DDCE] bg-[#F5E1BE]">
+            <Image
+              src={logoImg}
+              alt="Logo Resmi P'crème"
+              width={32}
+              height={32}
+              className="h-full w-full object-contain"
+            />
+          </span>
+          <span>P&apos;crème admin</span>
         </Link>
         <button
           type="button"

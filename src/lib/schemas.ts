@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { waValid } from "@/lib/format";
+import { pesanErrorJamAntarWib, waValid } from "@/lib/format";
 
 /** Skema nomor WA (cermin aturan server: 08.., 628.., +628..). */
 export const waSchema = z
@@ -23,10 +23,28 @@ export interface AturanPesanan {
   /** min(maks_per_order, sisa_kuota) — hanya untuk UX; server tetap penentu. */
   maksTotalCup: number;
   maksTopping: number;
+  /** Apakah opsi Ambil di Titik Kumpul tersedia dan diaktifkan oleh admin pada batch ini. */
+  opsiAmbilTersedia?: boolean;
+  /** Apakah opsi Diantar ke Lokasi tersedia dan diaktifkan oleh admin pada batch ini. */
+  opsiAntarTersedia?: boolean;
+  /** Daftar ID titik pengambilan yang berstatus aktif pada batch ini. */
+  activePickupPointIds?: string[];
+  /** Jam mulai pengantaran batch (format HH:MM WIB). */
+  jamMulaiAntar?: string;
+  /** Jam selesai pengantaran batch (format HH:MM WIB). */
+  jamSelesaiAntar?: string;
 }
 
 /** Skema form pemesanan. Cermin aturan server supaya UX bagus; server tetap sumber kebenaran. */
-export function buildOrderSchema({ maksTotalCup, maksTopping }: AturanPesanan) {
+export function buildOrderSchema({
+  maksTotalCup,
+  maksTopping,
+  opsiAmbilTersedia = true,
+  opsiAntarTersedia = true,
+  activePickupPointIds,
+  jamMulaiAntar,
+  jamSelesaiAntar,
+}: AturanPesanan) {
   return z
     .object({
       nama: z
@@ -42,7 +60,7 @@ export function buildOrderSchema({ maksTotalCup, maksTopping }: AturanPesanan) {
       jam_antar: z.string().trim(),
       catatan: z.string().trim().max(300, "Catatan maksimal 300 karakter"),
       /** Honeypot: harus tetap kosong. */
-      website: z.string(),
+      website: z.string().max(0, "Permintaan tidak valid (bot terdeteksi)"),
       items: z
         .array(
           z.object({
@@ -65,15 +83,45 @@ export function buildOrderSchema({ maksTotalCup, maksTopping }: AturanPesanan) {
           message: `Total cup melebihi batas (maks ${maksTotalCup} cup untuk pesanan ini)`,
         });
       }
-      if (v.fulfillment === "ambil" && !v.pickup_point_id) {
-        ctx.addIssue({ code: "custom", path: ["pickup_point_id"], message: "Pilih titik ambil" });
+      if (!opsiAmbilTersedia && !opsiAntarTersedia) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["fulfillment"],
+          message: "Pemesanan belum dapat dilakukan karena metode pengambilan belum tersedia.",
+        });
+        return;
+      }
+      if (v.fulfillment === "ambil") {
+        if (!opsiAmbilTersedia) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["fulfillment"],
+            message: "Opsi Ambil di Titik Kumpul sedang tidak aktif. Silakan pilih metode pengambilan yang tersedia.",
+          });
+        } else if (!v.pickup_point_id) {
+          ctx.addIssue({ code: "custom", path: ["pickup_point_id"], message: "Pilih lokasi titik pengambilan yang aktif" });
+        } else if (activePickupPointIds && !activePickupPointIds.includes(v.pickup_point_id)) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["pickup_point_id"],
+            message: "Titik pengambilan yang dipilih sudah tidak aktif. Silakan pilih titik pengambilan lain.",
+          });
+        }
       }
       if (v.fulfillment === "antar") {
-        if (v.alamat.length < 5) {
-          ctx.addIssue({ code: "custom", path: ["alamat"], message: "Isi lokasi pengantaran" });
+        if (!opsiAntarTersedia) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["fulfillment"],
+            message: "Opsi Diantar ke Lokasi sedang tidak aktif. Silakan pilih metode pengambilan yang tersedia.",
+          });
         }
-        if (!v.jam_antar) {
-          ctx.addIssue({ code: "custom", path: ["jam_antar"], message: "Pilih jam antar" });
+        if (v.alamat.length < 5) {
+          ctx.addIssue({ code: "custom", path: ["alamat"], message: "Isi lokasi pengantaran (minimal 5 karakter)" });
+        }
+        const errJam = pesanErrorJamAntarWib(v.jam_antar, jamMulaiAntar, jamSelesaiAntar);
+        if (errJam) {
+          ctx.addIssue({ code: "custom", path: ["jam_antar"], message: errJam });
         }
       }
     });

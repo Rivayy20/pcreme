@@ -22,10 +22,19 @@ interface UploadBuktiProps {
   orderId?: string;
   waAdmin: string | null;
   sudahKirim: boolean;
+  isReupload?: boolean;
   onSelesai: () => void;
 }
 
-export function UploadBukti({ kode, wa, orderId, waAdmin, sudahKirim, onSelesai }: UploadBuktiProps) {
+export function UploadBukti({
+  kode,
+  wa,
+  orderId,
+  waAdmin,
+  sudahKirim,
+  isReupload,
+  onSelesai,
+}: UploadBuktiProps) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [tahap, setTahap] = useState<string | null>(null);
@@ -107,7 +116,10 @@ export function UploadBukti({ kode, wa, orderId, waAdmin, sudahKirim, onSelesai 
       const res = await kirimBuktiBayar(kode, wa, path);
       if (res.error) throw new Error(res.error);
 
-      toast.success("Bukti bayar terkirim. Admin akan segera memeriksanya 💗");
+      const pesanSukses = isReupload
+        ? "Bukti pembayaran berhasil dikirim ulang. Silakan tunggu admin melakukan verifikasi 💗"
+        : "Bukti bayar terkirim. Admin akan segera memeriksanya 💗";
+      toast.success(pesanSukses);
       ganti(null);
       onSelesai();
     } catch (err) {
@@ -124,19 +136,23 @@ export function UploadBukti({ kode, wa, orderId, waAdmin, sudahKirim, onSelesai 
   return (
     <div className="space-y-3 rounded-2xl border bg-card p-4">
       <h3 className="font-heading text-sm font-semibold">
-        {sudahKirim ? "Kirim ulang bukti bayar" : "Upload bukti bayar"}
+        {isReupload
+          ? "Kirim Ulang Bukti Pembayaran"
+          : sudahKirim
+            ? "Kirim Ulang Bukti Bayar"
+            : "Upload Bukti Pembayaran"}
       </h3>
       <p className="text-xs text-muted-foreground">
-        Foto JPG, PNG, atau WebP. Foto besar otomatis dikecilkan sebelum diunggah.
+        Foto JPG, PNG, atau WebP (maks 5 MB). Foto besar otomatis dioptimalkan sebelum diunggah.
       </p>
 
       <label
-        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border bg-background px-4 text-sm font-medium has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/60 ${
+        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border bg-background px-4 text-sm font-medium has-focus-visible:ring-3 has-focus-visible:ring-ring/60 ${
           sibuk ? "pointer-events-none opacity-50" : ""
         }`}
       >
         <ImagePlus className="size-4" aria-hidden />
-        {file ? "Ganti foto" : "Pilih foto"}
+        {file ? "Ganti foto" : "Pilih foto bukti"}
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"
@@ -161,7 +177,7 @@ export function UploadBukti({ kode, wa, orderId, waAdmin, sudahKirim, onSelesai 
 
       <Button
         type="button"
-        className="h-11 w-full rounded-full"
+        className="h-11 w-full rounded-full font-heading font-semibold"
         onClick={kirim}
         disabled={!file || sibuk}
       >
@@ -171,7 +187,8 @@ export function UploadBukti({ kode, wa, orderId, waAdmin, sudahKirim, onSelesai 
           </>
         ) : (
           <>
-            <Upload aria-hidden /> Kirim bukti bayar
+            <Upload aria-hidden />{" "}
+            {isReupload ? "Kirim Ulang Bukti Pembayaran" : "Kirim Bukti Pembayaran"}
           </>
         )}
       </Button>

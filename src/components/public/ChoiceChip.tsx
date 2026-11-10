@@ -16,8 +16,8 @@ export function ChoiceChip({ type, name, value, checked, disabled, onChange, chi
     <label
       className={cn(
         "relative inline-flex min-h-11 cursor-pointer select-none items-center justify-center rounded-full border bg-card px-4 text-sm font-medium transition-colors",
-        "has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground",
-        "has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/60",
+        "has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground",
+        "has-focus-visible:ring-3 has-focus-visible:ring-ring/60",
         disabled && "cursor-not-allowed opacity-45",
       )}
     >

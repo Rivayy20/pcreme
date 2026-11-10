@@ -1,6 +1,12 @@
 import { lokasiPesanan, rincianItem } from "@/lib/admin";
 import { tanggalJam } from "@/lib/format";
-import { STATUS_LABEL } from "@/lib/status";
+import { parseCatatanPesanan } from "@/lib/order-meta";
+import {
+  ORDER_PROGRESS_LABEL_ID,
+  PAYMENT_STATUS_LABEL_ID,
+  deriveOrderProgressStatus,
+  derivePaymentStatus,
+} from "@/lib/status";
 import type { OrderDenganRelasi } from "@/lib/types";
 
 /** Sel teks: cegah CSV/formula injection (Excel menjalankan sel berawalan = + - @) lalu beri tanda kutip bila perlu. */
@@ -15,26 +21,51 @@ function selWa(wa: string): string {
   return /^\d+$/.test(wa) ? `"=""${wa}"""` : sel(wa);
 }
 
-const KOLOM = ["Kode", "Nama", "WA", "Asal", "Rincian", "Jumlah cup", "Total", "Fulfillment", "Lokasi", "Status", "Waktu"];
+const KOLOM = [
+  "Kode",
+  "Nama",
+  "WA",
+  "Asal",
+  "Rincian Cup",
+  "Jumlah Cup",
+  "Total",
+  "Metode Pembayaran",
+  "Status Pembayaran",
+  "Status Pesanan",
+  "Fulfillment",
+  "Lokasi",
+  "Catatan Pelanggan",
+  "Waktu",
+];
 
 /** CSV pesanan dengan BOM UTF-8 supaya Excel membaca karakter dengan benar. */
 export function buatCsvPesanan(orders: OrderDenganRelasi[]): string {
-  const baris = orders.map((o) =>
-    [
+  const baris = orders.map((o) => {
+    const meta = parseCatatanPesanan(o.catatan, o.order_items);
+    const payStatus = derivePaymentStatus(o.status, {
+      catatanAdmin: o.catatan_admin,
+      buktiBayarPath: o.bukti_bayar_path,
+    });
+    const orderStatus = deriveOrderProgressStatus(o.status, o.fulfillment);
+
+    return [
       sel(o.kode),
       sel(o.nama),
       selWa(o.wa),
       sel(o.asal),
-      sel(rincianItem(o.order_items)),
+      sel(rincianItem(o.order_items, o.catatan)),
       o.jumlah_cup,
       o.total,
+      sel(meta.labelMetodeBayar),
+      sel(PAYMENT_STATUS_LABEL_ID[payStatus]),
+      sel(ORDER_PROGRESS_LABEL_ID[orderStatus]),
       sel(o.fulfillment === "ambil" ? "Ambil" : "Antar"),
       sel(lokasiPesanan(o)),
-      sel(STATUS_LABEL[o.status]),
+      sel(meta.catatanPelanggan ?? "-"),
       sel(tanggalJam(o.created_at)),
-    ].join(","),
-  );
-  return `﻿${[KOLOM.join(","), ...baris].join("\r\n")}\r\n`;
+    ].join(",");
+  });
+  return `\uFEFF${[KOLOM.join(","), ...baris].join("\r\n")}\r\n`;
 }
 
 export function unduhCsv(namaFile: string, isi: string): void {
